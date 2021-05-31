@@ -3,3 +3,8 @@
 /.idea/misc.xml
 /.idea/vcs.xml
 /.idea/train_capturer.iml
+/docker/rabbitmq/data
+/docker/rabbitmq/etc
+/docker/rabbitmq/logs
+/docker/redis/
+

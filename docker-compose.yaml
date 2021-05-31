@@ -1,13 +1,53 @@
 version: '3'
 services:
   web:
-    build: ./
+    build: ./app
     volumes:
       - ./app:/app
     ports:
       - "80:80"
+      - "5000:5000"
     environment:
       - FLASK_APP=main.py
       - FLASK_DEBUG=1
       - 'RUN=flask run --host=0.0.0.0 --port=80'
-    command: flask run --host=0.0.0.0 --port=80
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0      
+    # command: flask run --host=0.0.0.0 --port=80
+
+    depends_on: 
+    - redis
+
+  worker:
+    build: './worker'
+    user: nobody
+    depends_on:
+      - redis
+      - web
+
+  redis:
+    image: redis:6-alpine    
+    volumes:
+      - ./docker/redis:/data
+
+  # worker:
+  #   build: ./
+  #   volumes:
+  #     - ./app:/app
+  #   environment:
+  #     - FLASK_APP=main.py
+  #     - FLASK_DEBUG=1
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0      
+  #   command: celery  worker
+  #   depends_on: 
+  #     - redis
+ 
+  # rabbit:
+  #   image: rabbitmq:3-management
+  #   volumes:
+  #     - ./docker/rabbit_data:/var/lib/rabbit/data
+  #   ports:
+  #     - 5672:5672/tcp
+  #     - 15672:15672/tcp
+  #   restart: unless-stopped  
